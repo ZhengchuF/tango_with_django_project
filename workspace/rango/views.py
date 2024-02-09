@@ -16,6 +16,9 @@ def index(request, context_dict=None):
 
 
 def about(request):
+    print(request.method)
+    print(request.user)
+    
     return render(request, 'rango/about.html')
     
 
