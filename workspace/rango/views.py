@@ -16,12 +16,15 @@ def index(request, context_dict=None):
     context_dict['boldmessage'] = 'Crunchy, creamy, cookie, candy, cupcake!'
     context_dict['categories'] = category_list
 
-    return render(request, 'rango/index.html', context=context_dict)
+    return render(request.session.set_test_cookie(), 'rango/index.html', context=context_dict)
 
 
 def about(request):
     print(request.method)
     print(request.user)
+    if request.session.test_cookie_worked():
+        print("TEST COOKIE WORKED!")
+    request.session.delete_test_cookie()
 
     return render(request, 'rango/about.html')
     
@@ -144,8 +147,25 @@ def user_login(request):
 
 @login_required
 def user_logout(request):
-# Since we know the user is logged in, we can now just log them out.
-logout(request)
-# Take the user back to the homepage.
-return redirect(reverse('rango:index'))
+    # Since we know the user is logged in, we can now just log them out.
+    logout(request)
+    # Take the user back to the homepage.
+    return redirect(reverse('rango:index'))
 
+
+def visitor_cookie_handler(request, response):
+    visits = int(request.COOKIES.get('visits', '1'))
+
+    last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7],
+    '%Y-%m-%d %H:%M:%S')
+
+    if (datetime.now() - last_visit_time).days > 0:
+        visits = visits + 1
+        # Update the last visit cookie now that we have updated the count
+        response.set_cookie('last_visit', str(datetime.now()))
+    else:
+    # Set the last visit cookie
+        response.set_cookie('last_visit', last_visit_cookie)
+    # Update/set the visits cookie
+    response.set_cookie('visits', visits)
