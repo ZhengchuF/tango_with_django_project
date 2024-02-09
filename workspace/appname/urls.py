@@ -1,11 +1,10 @@
 from django.urls import path
-from rango import views
+from appname import views
 
 
-app_name = 'rango'
+app_name = 'appname'
 
 
 urlpatterns = [
     path('', views.index, name='index.html'),
-    path('about/', views.about, name='about'),
 ]
